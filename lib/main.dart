@@ -54,7 +54,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
 
@@ -65,8 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onScroll() {
-
-    final Store<AppState> store=StoreProvider.of<AppState>(context);
+    final Store<AppState> store = StoreProvider.of<AppState>(context);
 
     final double height = MediaQuery.of(context).size.height;
     final double offset = _scrollController.position.pixels;
@@ -76,10 +74,9 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _onText(){
-    final Store<AppState> store=StoreProvider.of<AppState>(context);
+  void _onText() {
+    final Store<AppState> store = StoreProvider.of<AppState>(context);
     store.dispatch(GetImages.start(search: _textController.text, page: 1));
-    print(store.state.categorie+" test ");
   }
 
   @override
@@ -136,7 +133,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                             borderRadius: BorderRadius.circular(10),
                                           ),
                                           child: SizedBox(
-                                            height: MediaQuery.of(context).size.height - MediaQuery.of(context).size.height / 2,
+                                            height: MediaQuery.of(context).size.height -
+                                                MediaQuery.of(context).size.height / 2,
                                             child: Column(
                                               children: <Widget>[
                                                 ImageWidget(context: context, index: index, photo: images)
@@ -148,12 +146,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                     });
                               },
                               child: Card(
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: ImageWidget(context: context, index: index,photo: images)
-                              ));
+                                  elevation: 3,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: ImageWidget(context: context, index: index, photo: images)));
                         }),
                   )
                 ]);

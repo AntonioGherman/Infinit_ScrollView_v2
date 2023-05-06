@@ -19,18 +19,14 @@ Reducer<AppState> _reducer = combineReducers(<Reducer<AppState>>[
 
 AppState _getImagesSuccessful(AppState state, GetImagesSuccessful actions) {
   return state.copyWith(
-      images: <Photo>[if(state.page!=1)...state.images, ...actions.images],
+      images: <Photo>[if (state.page != 1) ...state.images, ...actions.images],
       isLoading: false,
       hasMore: actions.images.isNotEmpty,
-      page: state.page+1
-  );
+      page: state.page + 1);
 }
 
 AppState _getImagesStart(AppState state, GetImagesStart action) {
-  return state.copyWith(
-      isLoading: true,
-      categorie: action.search,
-      page: action.page);
+  return state.copyWith(isLoading: true, categorie: action.search, page: action.page);
 }
 
 AppState _getImagesError(AppState state, GetImagesError action) {
