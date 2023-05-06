@@ -46,8 +46,41 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _textController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+
+    final Store<AppState> store=StoreProvider.of<AppState>(context);
+
+    final double height = MediaQuery.of(context).size.height;
+    final double offset = _scrollController.position.pixels;
+    final double maxScroll = _scrollController.position.maxScrollExtent;
+    if (store.state.hasMore && !store.state.isLoading && maxScroll - offset < 3 * height) {
+      store.dispatch(GetImages.start(search: store.state.categorie, page: store.state.page));
+    }
+  }
+
+  void _onText(){
+    final Store<AppState> store=StoreProvider.of<AppState>(context);
+    store.dispatch(GetImages.start(search: _textController.text, page: 1));
+    print(store.state.categorie+" test ");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,48 +92,71 @@ class MyHomePage extends StatelessWidget {
           builder: (BuildContext context, bool isLoading) {
             return ImagesContainer(
               builder: (BuildContext context, List<Photo> images) {
-                if (isLoading) {
+                if (isLoading && images.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
-                return GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-                    itemCount: images.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                          onLongPress: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Padding(
-                                    padding: const EdgeInsets.fromLTRB(30, 30, 30, 155),
-                                    child: Card(
-                                      elevation: 3,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height - MediaQuery.of(context).size.height / 2,
-                                        child: Column(
-                                          children: <Widget>[
-                                            ImageWidget(context: context, index: index, photo: images),
-                                            //  _imageWidget(context, index, images),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                });
+                return Column(children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: TextField(
+                              decoration: InputDecoration(
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30.0), borderSide: BorderSide.none),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                  hintText: 'Search',
+                                  prefixIcon: const Icon(Icons.search)),
+                              controller: _textController)),
+                      ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _onText();
+                            });
                           },
-                          child: Card(
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: ImageWidget(context: context, index: index, photo: images),
-                          ));
-                    });
+                          child: const Text('Search'))
+                    ],
+                  ),
+                  Expanded(
+                    child: GridView.builder(
+                        controller: _scrollController,
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+                        itemCount: images.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return GestureDetector(
+                              onLongPress: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Padding(
+                                        padding: const EdgeInsets.fromLTRB(30, 30, 30, 155),
+                                        child: Card(
+                                          elevation: 3,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: SizedBox(
+                                            height: MediaQuery.of(context).size.height - MediaQuery.of(context).size.height / 2,
+                                            child: Column(
+                                              children: <Widget>[
+                                                ImageWidget(context: context, index: index, photo: images)
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              },
+                              child: Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: ImageWidget(context: context, index: index,photo: images)
+                              ));
+                        }),
+                  )
+                ]);
               },
             );
           },
